@@ -1,0 +1,327 @@
+ *beginner.txt*  Pick beginners up where vimtutor drops them off.
+
+All authors release all copyrights and place this file in the public domain.
+
+                                                        *beginner* *beginning*
+
+vimtutor does a very good job of teaching you the basics of how to use Vim,    ////HNS Vim spelled this way?
+but it stops short of teaching you how to customize it to fit your needs and
+to help you get your work done.  With that in mind, I've set out to provide
+a whirlwind introduction to the aspects of Vim that new users are most likely
+to want to customize, with some pointers about best practices and limitations
+along the way.
+
+1. How to begin making customizations
+
+As vimtutor says, the first step is to make a ~/.vimrc file (or ~/_vimrc file
+on Windows).  This is where many of your Vim settings will be placed.  Any
+settings that you want to apply only when running a GUI version of Vim should
+instead be placed into ~/.gvimrc (or ~/_vimrc on Windows).                      ////HNS _vimrc on Windows?
+
+Different types of customizations are often placed in different directories
+inside ~/.vim (~/vimfiles on Windows).  Don't be afraid to make these
+directories if someone tells you to.  It's much easier to maintain a hierarchy
+of files whose names explain their purpose than it is to maintain a giant
+vimrc file that tries to do everything; besides, certain customizations (like
+colorschemes) must be kept in their own files.
+
+See |vimrc| and |gvimrc| for more info on how the files are named on each OS
+See |vimfiles| for a list of types of special directories you may need to make
+
+2. The first lines in your vimrc
+
+Nearly all people will want to start off their vimrc with the same three
+lines:
+
+set nocompatible
+>
+    You want this to be the first line of your vimrc file.  It makes Vim
+    behave like Vim, which is what you want, because otherwise you'd be
+    running Vi instead.  Toggling this option causes a lot of other options to
+    be toggled between "Vim defaults" and "Vi defaults", so it should be set
+    once at the beginning of your vimrc and never changed.
+
+    Smart cookies might tell you that this line is unnecessary in some
+    circumstances.  They would be right.  Smarter cookies, though, would point  ////HNS cookie?
+    out that there are times when it is necessary (|-u| and :source, for
+    instance).  It's always worth explicitly setting it.
+<
+syntax on
+>
+    This enables syntax highlighting.  If you want colors in your files,
+    you'll want this line.
+<
+filetype plugin indent on
+>
+    This one confuses a lot of people.  First of all, it's a convenient
+    shorthand for doing 3 different commands at once:
+
+    filetype on
+      - Allow Vim to recognize the type of a file based on its name and
+        contents.  Syntax highlighting doesn't work without this, so doing
+        ":syntax on" implicitly results in a ":filetype on" being called.
+
+    filetype plugin on
+      - Allow per-filetype plugins.  Unlike regular plugins, which are
+        :source'd only once when Vim first starts, filetype plugins are loaded
+        once for each file of their type.  These plugins allow a way to set
+        options on a per-filetype basis.  They are also called "ftplugins".
+
+    filetype indent on
+      - Allow per-filetype indent scripts.  These are like ftplugins, except
+        that they will control only the way that automatic indentation works
+        for files of that filetype.
+
+    Enabling all three of these is such a common operation that we are given
+    this shorthand for enabling them all at once.  Thanks to the default
+    ftplugins and indent scripts, this line will make Vim much more
+    intelligent when it comes to handling your code.
+<
+2. Settings you should know about
+
+Vim has a lot of options, and the ones I mention below barely scratch the
+surface, but they're ones that people very often change.
+
+'backspace'
+>
+    By default, when pressing backspace (or <C-w> or <C-u>) in insert mode,
+    you will not be able to delete over automatically inserted indentation, or
+    to join two lines together by backspacing over an end-of-line, or to
+    delete past the place where you started insert mode.  This option is
+    a comma separated list of places where you want Vim to let you backspace
+    despite its defaults; many people feel more comfortable if backspace can
+    delete over all of these things, and so use:
+
+        set backspace=indent,eol,start
+
+    Older references might print this as ":set backspace=2" instead.  This is
+    like ":set backspace=indent,eol,start", but uses a now deprecated syntax.
+<
+'number'
+>
+    This one's simple: turn on line numbers.  If you like them, turn it on.
+<
+'numberwidth'
+>
+    This one only applies if you want line numbers.  The 'numberwidth' option
+    controls the minimum number of spaces that the column of line numbers will
+    take up.  Setting it to 1 asks Vim to use as little space as possible.
+<
+'hidden'
+>
+    By default, whenever a buffer is no longer displayed in any windows, it
+    must first be saved, and then will be forgotten about.  The 'hidden'
+    option changes this behavior.  It lets you keep a file open and unsaved,
+    even when it isn't still being displayed, and lets you keep undo and redo
+    history when you come back to that file.
+
+    This makes working with multiple files much more pleasant.  Don't worry,
+    though - Vim will force you to either save the buffer or choose to throw
+    it away before it will let you exit.
+<
+'confirm'
+>
+    This setting makes Vim give pop up prompts instead of just ringing a bell
+    whenever the situation can be expressed in a menu.  For instance:
+
+    With 'noconfirm':
+        E89: No write since last change for buffer 1 (add ! to override)
+
+    With 'confirm':
+        Save changes to "/home/matt/foo/bar.txt"?
+        [Y]es, (N)o, (C)ancel:
+<
+'ruler'
+>
+    Display some information in the command line when you're not typing in it.
+    This includes the line number, column number, and percentage through the
+    file by default.
+<
+'laststatus'
+>
+    Control when a status line will be displayed.  By default, it will be
+    displayed on every window as long as there are 2 or more windows.  When
+    'laststatus' is set to 2, a status line will always be displayed, even if
+    there is only one window.  This overrides the 'ruler' option.  This status
+    line displays more information than the ruler, but means that you lose one
+    line of usable screen real estate to displaying information.  Try both,
+    and see which you prefer.
+<
+'report'
+>
+    Controls when a line will be printed describing what effect the last
+    command had.  When 'report' is set to 0 (zero), it means that after every
+    command, Vim should print the number of lines it affected and a summary of
+    what it did.  For instance:
+
+        4 fewer lines
+
+        2 substitutions on 2 lines
+<
+'visualbell'
+'t_vb'
+>
+    Between these two options you can control what happens when you make
+    a mistake.  By default, Vim will ring the system bell, which annoys many
+    people.  By setting the 'visualbell' option, Vim will instead flash the
+    screen.
+
+    In fact, you can even go one step further.  By clearing out the 't_vb'
+    option, Vim will not know how to flash the screen, and so it will do
+    nothing at all when you make a mistake.  If you want this behavior, you
+    just have to do this:
+
+        :set visualbell t_vb=
+
+    Note that t_vb is reset when the GUI is started, meaning that you will
+    have to duplicate the "set t_vb=" in both your vimrc and your gvimrc.
+<                                                                              ////HNS Should there be a pointer here to :options?
+3. Important concepts
+
+3.1 - Insert mode
+
+Insert mode should not be used as Vim's default mode.  New users have
+a tendency to try to always stay in insert mode, and only leave it when they
+have to.  Instead of thinking of insert mode as a mode, try to think of it as
+a command that is started by pressing i or a, and is ended by pressing <Esc>.
+If you think about it this way, a lot of things suddenly make more sense.
+
+50ix<Esc>  inserts the letter 'x' fifty times, for instance.
+
+Pressing '.' to repeat that command inserts another fifty 'x' into the buffer.
+
+Remembering that inserting is a repeatable command can often come in handy.
+
+3.2 - Buffers, Windows, Tab Pages
+
+A buffer is just the word for the contents of a file.  Each buffer may be
+associated with one file path (the file it will be written to when you :w).
+A buffer may not have an associated file path (like the empty buffer you get
+when you first start Vim).
+
+A window is a place where a buffer can be displayed.  There is always at least
+one window open.  A buffer can be displayed in any number of windows
+simultaneously.  Having a buffer that isn't displayed in a window is useful
+when switching between different tasks, letting you walk away from
+half-finished work.  Having a buffer that is displayed in two windows can be
+useful when trying to work on one part of the buffer based upon some context
+provided in another part of the buffer that's far away.
+
+A tab page is a place to put a group of windows.  There is always at least one
+tab page open.  Each tab must always have at least one window in it.  The
+maximum number of windows is bounded only by the size of the Vim window.
+
+Trying to create a one-to-one relationship between tab pages and buffers is
+asking for trouble.  Lots of Vim commands change the buffer displayed in the
+current window, and some others create a new window in the current tab page.
+Trying to lock a buffer to a single window inside a single tab page won't
+work; at least, not without cutting you off from many useful commands.
+
+3.2 - Automatic indenting
+
+This is an area that is more complicated in Vim than in most editors, because
+Vim gives you control over some things that other editors don't.  There are
+a lot of different options controlling how automatic indenting is done.
+
+First, there are many options that exist to control which text is indented,
+and by how many spaces it will be indented:
+
+'autoindent'
+>
+    The dumbest type of automatic indenting.  All this option does is make it
+    so that whenever you start a new line, it gets the same amount of leading
+    indent as the line before it.
+<
+'cindent'
+>
+    This type of indenting is designed for C-like languages, and will
+    automatically be turned on by the indent scripts for languages like C and
+    C++.  Its indenting rules can be changed by tweaking the 'cinoptions'
+    option, see |cinoptions-values|.
+<
+'lisp'
+>
+    Tries to indent according to Lisp indenting guidelines.  Automatically
+    turned on by the indent scripts for lisp-like languages.
+<
+'indentexpr'
+>
+    Provides a way for a script to control the indent that a line will get.
+    Most of the indent scripts use an indentexpr to control indenting.
+<
+'smartindent'
+>
+    This option is obsoleted by 'cindent' and 'indentexpr'.  It was
+    a predecessor to 'cindent' and is also designed for C-like languages, but
+    it provides less control than 'cindent' over the indenting C code, and is
+    less flexible than 'indentexpr' for indenting C-like languages.  It would
+    be very rare to ever turn this option on.
+<
+Of these options, the only one that should be turned on in a vimrc is
+'autoindent'.  All of the others are only appropriate for certain types of
+files, so it's best to let the indent scripts for those filetypes turn on the
+appropriate options.  Note that 'autoindent' only takes effect if none of the
+other, smarter indenting options are set.
+
+Then, there are a handful of options controlling whether automatically
+inserted indentation is composed of tab characters or spaces, and how wide
+a "level of indentation" is:
+
+'expandtab'
+>
+    Controls whether automatically inserted indentation will ever contain tab
+    characters.  If 'expandtab' is set, tab characters will always be replaced
+    by an appropriate number of spaces.  If 'noexpandtab' is being used, as it
+    is by default, tab characters are allowed.
+<
+'tabstop'
+>
+    Controls the number of character cells wide that a tab character (also
+    known as 0x09 or "\t") is displayed as.  If you are using spaces for
+    indentation (and thus have ":set expandtab"), you'll want to leave this at
+    its default value of 8, otherwise set it to the width you want a level of
+    indentation to have.
+<
+'shiftwidth'
+>
+    Controls the number of character cells wide that a level of indentation
+    is.  If you're using spaces for indentation, you'll want to set this to
+    the number of spaces each level of indentation should be.  If you're using
+    tab characters for indentation, you'll probably want it to match
+    'tabstop'.
+<
+'softtabstop'
+>
+    This option is only useful when using spaces for indentation.  It controls
+    how backspace (and a few other keys) work when faced with a bunch of
+    spaces that were inserted instead of a tab.  When set to, for instance, 2,
+    backspace will delete over two consecutive spaces as though they were
+    a single character.  This makes it feel like you're editing with tabs,
+    even though you're inserting spaces into the buffer.  Thus, when using
+    spaces, this option should usually be set to match 'shiftwidth'.
+<
+
+Things to add:
+
+Customization
+  - colorschemes
+  - plugins
+  - maps
+    - Which keys should be mapped
+    - Which keys can be mapped in terminal Vim
+
+Working with text in many encodings
+  - enc, fenc, fencs, tenc
+
+Where to look for more help
+  ...
+
+folding
+
+How to use the Vim help!
+
+multiple windows, :only
+
+set paste
+
+
