@@ -167,3 +167,14 @@ let g:jsx_ext_required = 0
 "retab!
 "set ts=4 sts=4 et
 "retab
+
+" For N52TE game controller
+nnoremap <C-k>] :q<Cr>
+nnoremap <C-k><C-]> :q!<Cr>
+
+nnoremap <C-k><PageUp> :qa<Cr>
+nnoremap <C-k><C-PageUp> :qa!<Cr>
+
+nnoremap <C-k><PageDown> :wq<Cr>
+nnoremap <C-k><C-PageDown> :wqa<Cr>
+
