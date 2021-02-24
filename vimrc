@@ -288,15 +288,6 @@ endfunction
 nnoremap n n:call CenterWhenNotAtTheMiddle()<Cr>
 nnoremap N N:call CenterWhenNotAtTheMiddle()<Cr>
 
-nnoremap <C-k>] :q<Cr>
-nnoremap <C-k><C-]> :q!<Cr>
-
-nnoremap <C-k><PageUp> :qa<Cr>
-nnoremap <C-k><C-PageUp> :qa!<Cr>
-
-nnoremap <C-k><PageDown> :wq<Cr>
-nnoremap <C-k><C-PageDown> :wqa<Cr>
-
 " Change 2 spaces to 4 spaces
 "set ts=2 sts=2 noet
 "retab!
@@ -312,4 +303,3 @@ nnoremap <C-k><C-PageUp> :qa!<Cr>
 
 nnoremap <C-k><PageDown> :wq<Cr>
 nnoremap <C-k><C-PageDown> :wqa<Cr>
-
